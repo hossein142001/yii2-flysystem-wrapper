@@ -35,37 +35,38 @@ class FlysystemWrapper extends \yii\base\Widget
         {
             $files = [$files];
         }
-        
+
         foreach ((array)$files as $file) {
             $file_name = $file_name ?? $file->name;
             $filePath = $data['path'] . '/' . $file_name;
             $fileContent = file_get_contents($file->tempName);
 
-            if (Yii::$app->fs->write($filePath, $fileContent) !== false) {
-                $fileModel = new File;
-                $fileModel->file_name = $file_name;
-                $fileModel->path = $filePath;
-                $fileModel->size = $file->size;
-                $fileModel->mime_type = $file->type;
-                $fileModel->context = isset($data['context']) ? $data['context'] : null;
-                $fileModel->version = isset($data['version']) ? $data['version'] : null;
-                $fileModel->hash = sha1(uniqid(rand(), TRUE));
+            $fileModel = new File;
+            $fileModel->file_name = $file_name;
+            $fileModel->path = $filePath;
+            $fileModel->size = $file->size;
+            $fileModel->mime_type = $file->type;
+            $fileModel->context = isset($data['context']) ? $data['context'] : null;
+            $fileModel->version = isset($data['version']) ? $data['version'] : null;
+            $fileModel->hash = sha1(uniqid(rand(), TRUE));
 
-                if ($fileModel->save()) {
-                    foreach ((array)$data['metadata'] as $metadata => $value) {
-                        $fileMetadataModel = new FileMetadata();
-                        $fileMetadataModel->file_id = $fileModel->id;
-                        $fileMetadataModel->metadata = $metadata;
-                        $fileMetadataModel->value = (string)$value;
-                        $fileMetadataModel->save();
-                    }
+            if ($fileModel->save()) {
+                foreach ((array)$data['metadata'] as $metadata => $value) {
+                    $fileMetadataModel = new FileMetadata();
+                    $fileMetadataModel->file_id = $fileModel->id;
+                    $fileMetadataModel->metadata = $metadata;
+                    $fileMetadataModel->value = (string)$value;
+                    $fileMetadataModel->save();
                 }
+            }
 
-                $ret[] = $fileModel;
-            } else {
+            $ret[] = $fileModel;
+
+            if (Yii::$app->fs->write($filePath, $fileContent) === false) {
                 return false;
             }
         }
+
         return $ret;
     }
 
