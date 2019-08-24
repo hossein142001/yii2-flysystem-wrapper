@@ -49,11 +49,11 @@ class m171015_085210_flysystem_wrapper extends Migration
 
         $this->addForeignKey('fk_file_created_user_id', '{{%file}}', 'created_user_id', '{{%user}}', 'id');
         $this->addForeignKey('fk_file_modified_user_id', '{{%file}}', 'updated_user_id', '{{%user}}', 'id');
-        $this->addForeignKey('fk_file_modified_user_id', '{{%file}}', 'deleted_user_id', '{{%user}}', 'id');
+        $this->addForeignKey('fk_file_deleted_user_id', '{{%file}}', 'deleted_user_id', '{{%user}}', 'id');
 
         $this->addForeignKey('fk_file_metadata_created_user_id', '{{%file_metadata}}', 'created_user_id', '{{%user}}', 'id');
         $this->addForeignKey('fk_file_metadata_modified_user_id', '{{%file_metadata}}', 'updated_user_id', '{{%user}}', 'id');
-        $this->addForeignKey('fk_file_metadata_modified_user_id', '{{%file_metadata}}', 'deleted_user_id', '{{%user}}', 'id');
+        $this->addForeignKey('fk_file_metadata_deleted_user_id', '{{%file_metadata}}', 'deleted_user_id', '{{%user}}', 'id');
 
         $this->addForeignKey('fk_file_metadata', '{{%file_metadata}}', 'file_id', '{{%file}}', 'id');
     }
