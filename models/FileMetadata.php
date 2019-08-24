@@ -2,8 +2,7 @@
 
 namespace hossein142001\flysystemwrapper\models;
 
-use whc\common\components\Module;
-use whc\education\modules\v1\modules\users\models\User;
+use hiiran\api\v1\modules\user\models\User;
 use Yii;
 
 
@@ -14,17 +13,19 @@ use Yii;
  * @property integer $file_id
  * @property string $metadata
  * @property string $value
- * @property string $created_time
+ * @property string $created_at
  * @property integer $created_user_id
- * @property string $modified_time
- * @property integer $modified_user_id
- * @property string $deleted_time
+ * @property string $updated_at
+ * @property integer $updated_user_id
+ * @property string $deleted_at
+ * @property integer $deleted_user_id
  *
  * @property File $file
  * @property User $createdUser
- * @property User $modifiedUser
+ * @property User $updatedUser
+ * @property User $deletedUser
  */
-class FileMetadata extends \whc\common\components\ActiveRecord
+class FileMetadata extends \hiiran\components\db\ActiveRecord
 {
     /**
      * @inheritdoc
@@ -41,12 +42,13 @@ class FileMetadata extends \whc\common\components\ActiveRecord
     {
         return [
             [['file_id', 'metadata', 'value'], 'required' , 'except' => 'getByParams'],
-            [['file_id', 'created_user_id', 'modified_user_id'], 'integer'],
-            [['created_time', 'modified_time', 'deleted_time'], 'safe'],
+            [['file_id', 'created_user_id', 'updated_user_id', 'deleted_user_id'], 'integer'],
+            [['created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['metadata', 'value'], 'string', 'max' => 255],
             [['file_id'], 'exist', 'skipOnError' => true, 'targetClass' => File::className(), 'targetAttribute' => ['file_id' => 'id']],
             [['created_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_user_id' => 'id']],
-            [['modified_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['modified_user_id' => 'id']],
+            [['updated_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['updated_user_id' => 'id']],
+            [['deleted_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['deleted_user_id' => 'id']],
         ];
     }
 
@@ -60,11 +62,12 @@ class FileMetadata extends \whc\common\components\ActiveRecord
             'file_id' => Module::t('v1/app', 'File ID'),
             'metadata' => Module::t('v1/app', 'Metadata'),
             'value' => Module::t('v1/app', 'Value'),
-            'created_time' => Module::t('v1/app', 'Created Time'),
-            'created_user_id' => Module::t('v1/app', 'Created User ID'),
-            'modified_time' => Module::t('v1/app', 'Modified Time'),
-            'modified_user_id' => Module::t('v1/app', 'Modified User ID'),
-            'deleted_time' => Module::t('v1/app', 'Deleted Time'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'created_user_id' => Yii::t('app', 'Created User ID'),
+            'updated_at' => Yii::t('app', 'Updated At'),
+            'updated_user_id' => Yii::t('app', 'Updated User ID'),
+            'deleted_at' => Yii::t('app', 'Deleted At'),
+            'deleted_user_id' => Yii::t('app', 'Deleted User ID'),
         ];
     }
 
@@ -76,7 +79,7 @@ class FileMetadata extends \whc\common\components\ActiveRecord
         return $this->hasOne(File::className(), ['id' => 'file_id']);
     }
 
-    /**
+	/**
      * @return \yii\db\ActiveQuery
      */
     public function getCreatedUser()
@@ -87,8 +90,16 @@ class FileMetadata extends \whc\common\components\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getModifiedUser()
+    public function getUpdatedUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'modified_user_id']);
+        return $this->hasOne(User::className(), ['id' => 'updated_user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDeletedUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'deleted_user_id']);
     }
 }
