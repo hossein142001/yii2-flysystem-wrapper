@@ -27,12 +27,11 @@ class FlysystemWrapper extends \yii\base\Widget
      * @param $data
      * @return bool
      */
-    public static function upload($files, $data , $file_name = null)
+    public static function upload($files, $data, $file_name = null)
     {
         $ret = [];
-        
-        if(is_object($files))
-        {
+
+        if (is_object($files)) {
             $files = [$files];
         }
 
@@ -80,7 +79,7 @@ class FlysystemWrapper extends \yii\base\Widget
         return File::find()
             ->alias('f')
             ->innerJoinWith('fileMetadatas')
-            ->where(['f.hash' => $hash, 'f.deleted_time' => null])
+            ->where(['f.hash' => $hash, 'f.deleted_at' => null])
             ->asArray()
             ->all();
     }
@@ -137,7 +136,7 @@ class FlysystemWrapper extends \yii\base\Widget
             $fmAlais = 'fm_' . $i++;
             $fileModel->innerJoin([$fmAlais => FileMetadata::tableName()], "f.id={$fmAlais}.file_id AND {$fmAlais}.metadata='$meta' AND {$fmAlais}.value='$value'");
         }
-        $fileModel->andWhere(['f.deleted_time' => null]);
+        $fileModel->andWhere(['f.deleted_at' => null]);
 
         return $fileModel->all();
     }
@@ -153,7 +152,7 @@ class FlysystemWrapper extends \yii\base\Widget
         }
 
         try {
-            $fileModel = File::findOne(['hash' => $name, 'deleted_time' => null]);
+            $fileModel = File::findOne(['hash' => $hash, 'deleted_at' => null]);
             if ($fileModel === null) {
                 throw new ServerErrorHttpException('File not found');
             }
