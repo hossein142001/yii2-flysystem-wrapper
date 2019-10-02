@@ -148,10 +148,29 @@ class FlysystemWrapper extends \yii\base\Widget
      */
     public static function deleteByHash($hash)
     {
-        $fileModel = File::find()->where(['hash' => $hash, 'deleted_time' => null])->one();
-        if ($fileModel !== null) {
-            return Yii::$app->fs->delete($fileModel->path);
+        if (($transaction = File::getDb()->getTransaction()) === null) {
+            $transaction = File::getDb()->beginTransaction();
         }
+
+        try {
+            $fileModel = File::findOne(['hash' => $name, 'deleted_time' => null]);
+            if ($fileModel === null) {
+                throw new ServerErrorHttpException('File not found');
+            }
+            FileMetadata::deleteAll(['file_id' => $fileModel->id]);
+            if (Yii::$app->fs->delete($fileModel->path) !== false) {
+                File::deleteAll(['id' => $fileModel->id]);
+                $response = Yii::$app->getResponse();
+                $response->setStatusCode(204);
+            } else {
+                throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+            throw $e;
+        }
+
         return false;
     }
 }
