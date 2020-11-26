@@ -90,11 +90,15 @@ class FlysystemWrapper extends \yii\base\Widget
      * @param $hash
      * @return bool
      */
-    public static function readByHash($hash, $return = true)
+    public static function readByHash($hash, $return = true, $customPath = null)
     {
         $fileModel = File::find()->andWhere(['hash' => $hash])->one();
 
-        if ($fileModel && Yii::$app->fs->has($fileModel->path)) {
+        $path = $fileModel->path;
+        if($customPath && Yii::$app->fs->has($customPath))
+            $path = $customPath;
+        
+        if ($fileModel && Yii::$app->fs->has($path)) {
             if ($return) {
                 header('Content-Description: File Transfer');
                 header("Content-Type: " . $fileModel->mime_type);
@@ -103,9 +107,9 @@ class FlysystemWrapper extends \yii\base\Widget
                 header('Cache-Control: must-revalidate');
                 header('Pragma: public');
                 //header('Content-Length: ' . $fileModel->size);
-                echo Yii::$app->fs->read($fileModel->path);
+                echo Yii::$app->fs->read($path);
             } else {
-                return ['content' => Yii::$app->fs->read($fileModel->path)];
+                return ['content' => Yii::$app->fs->read($path)];
             }
         }
         return false;
